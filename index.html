@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CommonGround - Find Companions & Gaming Squads in Bengaluru, Hyderabad & Online</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Outfit"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              emerald: '#10B981',
+              indigo: '#6366F1',
+              amber: '#F59E0B'
+            },
+            surface: {
+              lightBg: '#FBF9F5',
+              darkBg: '#0F1117',
+              cardDark: '#171B24',
+              borderDark: '#262D3D',
+              hoverDark: '#202634'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glass-nav {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    /* Modern minimal scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #f97316;
+    }
+    .fade-in {
+      animation: fadeIn 0.25s ease-in-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-surface-lightBg text-slate-800 dark:bg-surface-darkBg dark:text-slate-100 font-sans transition-colors duration-200 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+  <header class="sticky top-0 z-40 glass-nav border-b border-orange-200/50 dark:border-surface-borderDark bg-[#FAF8F5]/90 dark:bg-surface-darkBg/90 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20 gap-3 sm:gap-6">
+        
+        <!-- Logo -->
+        <a href="javascript:void(0)" onclick="resetAllFilters()" class="flex items-center gap-3 group focus:outline-none shrink-0">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 via-amber-500 to-rose-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-transform duration-200">
+            <i data-lucide="compass" class="w-5 h-5"></i>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-display font-extrabold text-xl sm:text-2xl tracking-tight bg-gradient-to-r from-orange-600 via-amber-600 to-rose-500 dark:from-orange-400 dark:via-amber-300 dark:to-rose-400 bg-clip-text text-transparent">
+              CommonGround
+            </span>
+            <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 -mt-1 hidden sm:inline-block">
+              BLR • HYD • ONLINE
+            </span>
+          </div>
+        </a>
+
+        <!-- Desktop Quick Search -->
+        <div class="hidden md:flex items-center flex-1 max-w-md">
+          <div class="relative w-full">
+            <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+            <input 
+              type="text" 
+              id="desktopSearchInput" 
+              placeholder="Search games, turfs, Durgam Cheruvu, Cubbon Park..." 
+              oninput="handleSearch(this.value)"
+              class="w-full pl-10 pr-8 py-2 rounded-full text-sm bg-white dark:bg-surface-cardDark border border-orange-200/60 dark:border-surface-borderDark text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 transition-all shadow-sm"
+            >
+            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+              <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- City Dropdown in Header -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="relative">
+            <label for="citySelector" class="sr-only">Choose Location</label>
+            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-100/70 dark:bg-surface-cardDark border border-orange-200/80 dark:border-surface-borderDark text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-500 shrink-0"></i>
+              <select 
+                id="citySelector" 
+                onchange="handleCityChange(this.value)"
+                class="bg-transparent border-none text-xs font-semibold focus:outline-none cursor-pointer pr-1 text-slate-800 dark:text-slate-100"
+              >
+                <option value="all" class="dark:bg-surface-cardDark text-slate-800 dark:text-slate-100">All Locations</option>
+                <option value="bengaluru" class="dark:bg-surface-cardDark text-slate-800 dark:text-slate-100">Bengaluru (BLR)</option>
+                <option value="hyderabad" class="dark:bg-surface-cardDark text-slate-800 dark:text-slate-100">Hyderabad (HYD)</option>
+                <option value="online" class="dark:bg-surface-cardDark text-slate-800 dark:text-slate-100">Online Only</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Post Button -->
+          <button 
+            onclick="openCreateModal()" 
+            class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full font-semibold text-xs sm:text-sm text-white bg-gradient-to-r from-brand-500 to-rose-500 hover:from-brand-600 hover:to-rose-600 shadow-md shadow-brand-500/25 active:scale-95 transition-all cursor-pointer"
+          >
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Host Activity</span>
+            <span class="sm:hidden">Host</span>
+          </button>
+
+          <!-- Theme Toggle -->
+          <button 
+            id="themeToggleBtn" 
+            onclick="toggleTheme()" 
+            class="p-2 sm:p-2.5 rounded-full text-slate-600 dark:text-slate-300 hover:bg-orange-100/60 dark:hover:bg-surface-hoverDark transition-colors"
+            title="Toggle Light/Dark Theme"
+          >
+            <i data-lucide="sun" id="themeSunIcon" class="w-4.5 h-4.5 hidden"></i>
+            <i data-lucide="moon" id="themeMoonIcon" class="w-4.5 h-4.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Search Bar -->
+      <div class="block md:hidden pb-3">
+        <div class="relative w-full">
+          <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+          <input 
+            type="text" 
+            id="mobileSearchInput"
+            placeholder="Search games, turfs, Cubbon, Durgam Cheruvu..." 
+            oninput="handleSearch(this.value)"
+            class="w-full pl-10 pr-4 py-2 rounded-xl text-sm bg-white dark:bg-surface-cardDark border border-orange-200/60 dark:border-surface-borderDark text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+          >
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    
+    <!-- Zero-Pressure Community Pledge Banner -->
+    <div class="mb-6 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-emerald-500/10 border border-orange-300/40 dark:border-surface-borderDark p-3.5 sm:p-4 flex items-center justify-between gap-3 text-xs sm:text-sm">
+      <div class="flex items-center gap-2.5">
+        <span class="flex h-7 w-7 rounded-xl bg-orange-500/20 text-orange-600 dark:text-orange-400 items-center justify-center shrink-0">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+        </span>
+        <span class="text-slate-700 dark:text-slate-200 font-medium">
+          <strong class="text-slate-900 dark:text-white">Gentle Space Pledge:</strong> No dating pressure, no toxic gameplay, and zero networking sales. Just real people finding squadmates and weekend companions.
+        </span>
+      </div>
+      <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold text-xs shrink-0">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+        180+ Active in BLR & HYD
+      </span>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-orange-100/90 via-amber-50/60 to-rose-50/50 dark:from-[#1E1B24] dark:via-[#151922] dark:to-[#11141B] border border-orange-200/60 dark:border-surface-borderDark p-6 sm:p-9 mb-7 shadow-sm">
+      <div class="relative z-10 max-w-3xl">
+        
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 dark:bg-surface-cardDark text-orange-600 dark:text-orange-300 font-bold text-xs uppercase tracking-wider mb-3.5 border border-orange-200/60 dark:border-surface-borderDark shadow-xs">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-brand-500"></i>
+          Connect Without Awkwardness
+        </div>
+
+        <h1 class="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] mb-3">
+          Find your crew in <span class="text-brand-500 underline decoration-orange-400/40 decoration-wavy decoration-2">Bengaluru</span>, <span class="text-brand-indigo dark:text-indigo-400 underline decoration-indigo-400/40 decoration-wavy decoration-2">Hyderabad</span>, or online.
+        </h1>
+        
+        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 mb-5 leading-relaxed max-w-2xl">
+          Whether you moved here for a tech job, live alone, or just need a 4th player for a Valorant unrated lobby or badminton doubles at the local turf—we’ve got common ground.
+        </p>
+
+        <!-- Hyper-Local Quick Jump Chips -->
+        <div class="flex flex-wrap items-center gap-2 pt-1">
+          <span class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mr-1 flex items-center gap-1">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i> Quick filters:
+          </span>
+          <button onclick="quickFilterTag('Cubbon Park')" class="px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-surface-cardDark hover:bg-orange-50 dark:hover:bg-surface-hoverDark border border-orange-200/60 dark:border-surface-borderDark text-slate-700 dark:text-slate-300 transition-all hover:scale-105 active:scale-95">🌳 Cubbon Park (BLR)</button>
+          <button onclick="quickFilterTag('Durgam Cheruvu')" class="px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-surface-cardDark hover:bg-orange-50 dark:hover:bg-surface-hoverDark border border-orange-200/60 dark:border-surface-borderDark text-slate-700 dark:text-slate-300 transition-all hover:scale-105 active:scale-95">☕ Durgam Cheruvu (HYD)</button>
+          <button onclick="quickFilterTag('Valorant')" class="px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-surface-cardDark hover:bg-orange-50 dark:hover:bg-surface-hoverDark border border-orange-200/60 dark:border-surface-borderDark text-slate-700 dark:text-slate-300 transition-all hover:scale-105 active:scale-95">🎮 Valorant Chill</button>
+          <button onclick="quickFilterTag('Badminton')" class="px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-surface-cardDark hover:bg-orange-50 dark:hover:bg-surface-hoverDark border border-orange-200/60 dark:border-surface-borderDark text-slate-700 dark:text-slate-300 transition-all hover:scale-105 active:scale-95">🏸 Badminton Doubles</button>
+          <button onclick="quickFilterTag('Box Cricket')" class="px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-surface-cardDark hover:bg-orange-50 dark:hover:bg-surface-hoverDark border border-orange-200/60 dark:border-surface-borderDark text-slate-700 dark:text-slate-300 transition-all hover:scale-105 active:scale-95">🏏 Box Cricket Turf</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="flex flex-col gap-4 mb-6 border-b border-orange-100 dark:border-surface-borderDark pb-4">
+      
+      <!-- Category Tabs (Horizontal Scrollable on Mobile) -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none" id="categoryTabContainer">
+        <button onclick="filterCategory('all')" id="cat-all" class="cat-pill active px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap bg-brand-500 text-white shadow-sm">
+          🌟 All Hangouts
+        </button>
+        <button onclick="filterCategory('gaming')" id="cat-gaming" class="cat-pill px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-orange-100/60 dark:hover:bg-surface-cardDark transition-all whitespace-nowrap">
+          🎮 Online Gaming (Valorant / BGMI / Steam)
+        </button>
+        <button onclick="filterCategory('sports')" id="cat-sports" class="cat-pill px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-orange-100/60 dark:hover:bg-surface-cardDark transition-all whitespace-nowrap">
+          🏸 Sports & Turfs (Badminton / Cricket)
+        </button>
+        <button onclick="filterCategory('social')" id="cat-social" class="cat-pill px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-orange-100/60 dark:hover:bg-surface-cardDark transition-all whitespace-nowrap">
+          ☕ Chai, Coffee & Walks
+        </button>
+        <button onclick="filterCategory('boardgames_tech')" id="cat-boardgames_tech" class="cat-pill px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-orange-100/60 dark:hover:bg-surface-cardDark transition-all whitespace-nowrap">
+          🎲 Board Games & Co-Working
+        </button>
+      </div>
+
+      <!-- Second Row: City Switch Buttons & Mode Filters -->
+      <div class="flex flex-wrap items-center justify-between gap-3 text-xs">
+        
+        <!-- City Buttons -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="text-slate-400 font-bold uppercase tracking-wider text-[11px] mr-1">City:</span>
+          <button onclick="setCity('all')" id="city-pill-all" class="city-btn px-3 py-1.5 rounded-xl font-bold bg-orange-500 text-white transition-all shadow-xs">All Places</button>
+          <button onclick="setCity('bengaluru')" id="city-pill-bengaluru" class="city-btn px-3 py-1.5 rounded-xl font-semibold bg-white dark:bg-surface-cardDark text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-surface-borderDark hover:border-orange-400 transition-all">Bengaluru</button>
+          <button onclick="setCity('hyderabad')" id="city-pill-hyderabad" class="city-btn px-3 py-1.5 rounded-xl font-semibold bg-white dark:bg-surface-cardDark text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-surface-borderDark hover:border-orange-400 transition-all">Hyderabad</button>
+          <button onclick="setCity('online')" id="city-pill-online" class="city-btn px-3 py-1.5 rounded-xl font-semibold bg-white dark:bg-surface-cardDark text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-surface-borderDark hover:border-orange-400 transition-all">🌐 Online Only</button>
+        </div>
+
+        <!-- Mode Toggle & Count -->
+        <div class="flex items-center gap-3 ml-auto">
+          <div class="flex items-center gap-1 bg-white dark:bg-surface-cardDark p-1 rounded-xl border border-orange-200/50 dark:border-surface-borderDark">
+            <button onclick="setMode('all')" id="mode-all" class="mode-tag px-2.5 py-1 rounded-lg bg-orange-500 text-white font-bold transition-all">All Modes</button>
+            <button onclick="setMode('Online')" id="mode-Online" class="mode-tag px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300 font-medium hover:text-orange-500 transition-all">🌐 Online</button>
+            <button onclick="setMode('Offline')" id="mode-Offline" class="mode-tag px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300 font-medium hover:text-orange-500 transition-all">📍 In-Person</button>
+          </div>
+          <span id="activeCountDisplay" class="font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap text-xs">
+            Showing 6 hangouts
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Cards dynamically rendered by JavaScript -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-16 px-4 bg-white dark:bg-surface-cardDark rounded-3xl border border-orange-100 dark:border-surface-borderDark mt-4">
+      <div class="w-16 h-16 rounded-2xl bg-orange-100 dark:bg-surface-darkBg flex items-center justify-center text-orange-500 mx-auto mb-4 border border-orange-200/50 dark:border-surface-borderDark">
+        <i data-lucide="compass" class="w-8 h-8"></i>
+      </div>
+      <h3 class="font-display text-xl font-bold text-slate-800 dark:text-slate-100 mb-1.5">No matching hangouts found</h3>
+      <p class="text-slate-500 dark:text-slate-400 max-w-md mx-auto text-xs sm:text-sm mb-5">
+        Be the first one to create a lobby or hangout for this category in your city!
+      </p>
+      <div class="flex items-center justify-center gap-3">
+        <button onclick="resetAllFilters()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-surface-darkBg hover:bg-slate-200 text-slate-700 dark:text-slate-300 transition-all">
+          Clear Filters
+        </button>
+        <button onclick="openCreateModal()" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-brand-500 hover:bg-brand-600 shadow-md">
+          <i data-lucide="plus" class="w-3.5 h-3.5 inline mr-1"></i> Host This Activity
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="mt-auto border-t border-orange-200/50 dark:border-surface-borderDark bg-white dark:bg-surface-cardDark py-8 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+        <div>
+          <div class="flex items-center justify-center md:justify-start gap-2">
+            <span class="font-display font-bold text-slate-900 dark:text-white">CommonGround</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-orange-100 dark:bg-surface-darkBg text-orange-600 font-semibold">Bengaluru & Hyderabad Edition</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
+            Helping young migrants, remote engineers, gamers, and weekend adventurers find warm companions without awkwardness.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
+          <button onclick="quickFilterTag('Cubbon Park')" class="hover:text-brand-500 transition-colors">Cubbon Meetups</button>
+          <button onclick="quickFilterTag('Durgam Cheruvu')" class="hover:text-brand-500 transition-colors">Durgam Cheruvu Chai</button>
+          <button onclick="quickFilterTag('Valorant')" class="hover:text-brand-500 transition-colors">Valorant Squads</button>
+          <button onclick="showToast('Zero-tolerance policy for harassment or non-consensual contact.', 'info')" class="hover:text-brand-500 transition-colors">Safety Rules</button>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div id="chatDrawer" class="fixed inset-0 z-50 overflow-hidden pointer-events-none transition-all duration-300">
+    <!-- Backdrop -->
+    <div id="chatBackdrop" onclick="closeChatDrawer()" class="absolute inset-0 bg-slate-900/50 backdrop-blur-xs opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+
+    <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div id="chatPanel" class="w-screen max-w-md bg-white dark:bg-surface-cardDark shadow-2xl border-l border-orange-200/50 dark:border-surface-borderDark flex flex-col transform translate-x-full transition-transform duration-300 pointer-events-auto">
+        
+        <!-- Drawer Header -->
+        <div class="px-5 py-4 border-b border-orange-100 dark:border-surface-borderDark flex items-center justify-between bg-orange-50/40 dark:bg-surface-darkBg/60">
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <img id="drawerAvatar" src="" alt="Host avatar" class="w-11 h-11 rounded-2xl object-cover border-2 border-brand-500/50" onerror="this.src='https://placehold.co/100x100/f97316/ffffff?text=Host'">
+              <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white dark:border-surface-cardDark"></span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 id="drawerHostName" class="font-display font-bold text-slate-900 dark:text-white text-base">Host Name</h4>
+                <span id="drawerCityBadge" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-300">BLR</span>
+              </div>
+              <p id="drawerActivityTitle" class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">Connecting...</p>
+            </div>
+          </div>
+
+          <button onclick="closeChatDrawer()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-hoverDark transition-colors">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Icebreakers & Suggested Starters -->
+        <div class="px-4 py-2.5 bg-amber-50/60 dark:bg-surface-darkBg/30 border-b border-orange-100/50 dark:border-surface-borderDark">
+          <div class="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300 font-semibold mb-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> One-Tap Icebreakers:
+          </div>
+          <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none text-xs" id="icebreakerList">
+            <button onclick="sendIcebreaker(this.innerText)" class="px-3 py-1 rounded-full bg-white dark:bg-surface-cardDark border border-orange-200/60 dark:border-surface-borderDark hover:border-brand-500 text-slate-700 dark:text-slate-300 whitespace-nowrap transition-all shadow-xs">
+              👋 Hey! Do you still have space for one?
+            </button>
+            <button onclick="sendIcebreaker(this.innerText)" class="px-3 py-1 rounded-full bg-white dark:bg-surface-cardDark border border-orange-200/60 dark:border-surface-borderDark hover:border-brand-500 text-slate-700 dark:text-slate-300 whitespace-nowrap transition-all shadow-xs">
+              🏸 Mind if I join as an intermediate beginner?
+            </button>
+            <button onclick="sendIcebreaker(this.innerText)" class="px-3 py-1 rounded-full bg-white dark:bg-surface-cardDark border border-orange-200/60 dark:border-surface-borderDark hover:border-brand-500 text-slate-700 dark:text-slate-300 whitespace-nowrap transition-all shadow-xs">
+              ☕ What time are you guys assembling?
+            </button>
+          </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="drawerMessages" class="flex-1 p-4 overflow-y-auto space-y-3.5 text-sm bg-slate-50/50 dark:bg-[#12151D]">
+          <!-- Messages will be injected here -->
+        </div>
+
+        <!-- Typing indicator -->
+        <div id="drawerTyping" class="px-5 py-1.5 text-xs text-slate-400 italic hidden flex items-center gap-2 bg-slate-50/50 dark:bg-[#12151D]">
+          <span class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-bounce"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-bounce" style="animation-delay: 0.15s"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-bounce" style="animation-delay: 0.3s"></span>
+          <span id="drawerTypingName">Host is typing...</span>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form id="drawerChatForm" onsubmit="handleSendDrawerChat(event)" class="p-3 border-t border-orange-100 dark:border-surface-borderDark bg-white dark:bg-surface-cardDark flex items-center gap-2">
+          <input 
+            type="text" 
+            id="drawerChatInput" 
+            placeholder="Type a friendly message..." 
+            autocomplete="off"
+            class="flex-1 px-4 py-2.5 rounded-2xl text-sm bg-slate-100 dark:bg-surface-darkBg border border-slate-200 dark:border-surface-borderDark text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          >
+          <button 
+            type="submit" 
+            class="p-2.5 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white shadow-sm transition-transform active:scale-95 flex items-center justify-center shrink-0"
+          >
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <div id="createModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-white dark:bg-surface-cardDark w-full max-w-xl rounded-3xl shadow-2xl border border-orange-200/50 dark:border-surface-borderDark overflow-hidden transform scale-95 transition-transform duration-200" id="createModalContent">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4.5 border-b border-orange-100 dark:border-surface-borderDark flex items-center justify-between bg-orange-50/50 dark:bg-surface-darkBg/60">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center">
+            <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white">Host an Activity or LFG</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Post for Bangalore, Hyderabad, or Online gamers</p>
+          </div>
+        </div>
+        <button onclick="closeCreateModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-surface-hoverDark transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Form -->
+      <form id="activityForm" onsubmit="handleCreateActivity(event)" class="p-6 space-y-4 max-h-[78vh] overflow-y-auto">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Activity Title *</label>
+          <input 
+            type="text" 
+            id="fTitle" 
+            required 
+            placeholder="e.g. 4th player needed for BGMI / Sunday Cubbon Park board games" 
+            class="w-full px-3.5 py-2.5 rounded-xl text-sm bg-slate-50 dark:bg-surface-darkBg border border-slate-200 dark:border-surface-borderDark text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          >
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Target City *</label>
+            <select id="fCity" class="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-surface-darkBg border border-slate-200 dark:border-surface-borderDark text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option value="bengaluru">Bengaluru</option>
+              <option value="hyderabad">Hyderabad</option>
+              <option value="online">Online Only</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Participation Mode *</label>
+            <select id="fMode" onchange="handleModalModeChange(this.value)" class="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-surface-darkBg border border-slate-200 dark:border-surface-borderDark text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option value="Offline">📍 In-Person</option>
+              <option value="Online">🌐 Online</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Category *</label>
+            <select id="fCategory" class="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-surface-darkBg border border-slate-200 dark:border-surface-borderDark text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option value="gaming">🎮 Online Gaming</option>
+              <option value="sports">🏸 Sports & Turf</option>
+              <option value="social">☕ Chai & Chill</option>
+              <option value="boardgames_tech">🎲 Board Games & Tech</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label id="fLocationLabel" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Venue / Area *</label>
+            <input 
+              type="text" 
+              id="fLocation" 
+              required 
+              placeholder="e.g. HSR Turf, Kondapur, or Discord Server" 
+              class="w-full px-3.5 py-2.5 rounded-xl text-sm bg-slate-50 dark:bg-surface-darkBg border border-slate-200 dark:border-surface-borderDark text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Schedule & Time *</label>
+            <input 
+              type="text" 
+              id="fTime" 
+              required 
+              placeholder="e.g. Saturday 7:00 AM or Tonight 9:30 PM" 
+              class="w-full px-3.5 py-2.5 rounded-xl text-sm bg-slate-50 dark:bg-surface-darkBg border border-slate-200 dark:border-surface-borderDark text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Max Spots</label>
+            <input 
+              type="number" 
+              id="fMaxCount" 
+              min="2" 
+              max="16" 
+              value="4" 
+              class="w-full px-3.5 py-2 rounded-xl text-sm bg-slate-50 dark:bg-surface-darkBg border border-slate-200 dark:border-surface-borderDark text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Vibe Tag</label>
+            <select id="fVibe" class="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-surface-darkBg border border-slate-200 dark:border-surface-borderDark text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option value="Beginners Welcome">Beginners Welcome</option>
+              <option value="No Toxicity / Casual">No Toxicity / Casual</option>
+              <option value="Chai Lovers">Chai Lovers</option>
+              <option value="Semi-Competitive">Semi-Competitive</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Your Host Name</label>
+            <input 
+              type="text" 
+              id="fHostName" 
+              value="You" 
+              required
+              class="w-full px-3.5 py-2 rounded-xl text-sm bg-slate-50 dark:bg-surface-darkBg border border-slate-200 dark:border-surface-borderDark text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Description & Context</label>
+          <textarea 
+            id="fDesc" 
+            rows="3" 
+            required 
+            placeholder="Share details on skill level, rackets/equipment availability, discord link, or exact meeting spot..."
+            class="w-full px-3.5 py-2 rounded-xl text-sm bg-slate-50 dark:bg-surface-darkBg border border-slate-200 dark:border-surface-borderDark text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          ></textarea>
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-surface-borderDark">
+          <button 
+            type="button" 
+            onclick="closeCreateModal()" 
+            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-surface-hoverDark transition-colors"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-brand-500 to-rose-500 hover:from-brand-600 hover:to-rose-600 shadow-md shadow-brand-500/25 active:scale-95 transition-all"
+          >
+            Publish Live Activity
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl border text-xs sm:text-sm font-semibold transition-all transform translate-y-20 opacity-0 pointer-events-none bg-slate-900 text-white border-slate-800 dark:bg-white dark:text-slate-900 dark:border-slate-200">
+    <i data-lucide="info" id="toastIcon" class="w-4.5 h-4.5 text-brand-500"></i>
+    <span id="toastMessage">Notification message</span>
+  </div>
+
+  <script>
+    // Robust Initial Dataset geared specifically for Bengaluru, Hyderabad, and Online
+    let activities = [
+      {
+        id: 101,
+        title: "Sunday Cubbon Park Casual Board Games & Kindle Reading",
+        category: "boardgames_tech",
+        city: "bengaluru",
+        mode: "Offline",
+        location: "Cubbon Park (Near Bandstand / King Edward Statue), Bengaluru",
+        time: "Sunday, 8:30 AM - 11:30 AM",
+        currentParticipants: 3,
+        maxParticipants: 6,
+        vibe: "Beginners Welcome",
+        joinedByMe: false,
+        host: {
+          name: "Ananya Rao",
+          avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80",
+          tagline: "Product designer in Indiranagar. Bringing Codenames & picnic mat.",
+          cityBadge: "Bengaluru"
+        },
+        description: "Zero pressure meetup! We lay down a picnic mat under the bamboo trees, play light games (Codenames, Exploding Kittens), or just read side-by-side with hot flask coffee. Very introvert-friendly.",
+        tags: ["Cubbon Park", "Indiranagar", "Board Games", "Introvert Friendly"]
+      },
+      {
+        id: 102,
+        title: "Koramangala Late-Night Chill Valorant Squad (Unrated / Silver-Gold)",
+        category: "gaming",
+        city: "bengaluru",
+        mode: "Online",
+        location: "Discord Voice / Mumbai Server",
+        time: "Tonight, 9:30 PM - 12:00 AM",
+        currentParticipants: 3,
+        maxParticipants: 5,
+        vibe: "No Toxicity / Casual",
+        joinedByMe: false,
+        host: {
+          name: "Aditya Hegde",
+          avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=160&q=80",
+          tagline: "Dev working in Koramangala. Cypher main, hates toxic teammates.",
+          cityBadge: "Bengaluru"
+        },
+        description: "Need 2 people for unrated or low comp. We don't scream or get tilted when someone whiffs an easy shot. Just laughing, trading callouts, and de-stressing after a long week of code sprints.",
+        tags: ["Valorant", "Koramangala", "No Salt", "Mumbai Server"]
+      },
+      {
+        id: 103,
+        title: "Weekend Chai & Sunset Stroll along Durgam Cheruvu Cable Bridge",
+        category: "social",
+        city: "hyderabad",
+        mode: "Offline",
+        location: "Durgam Cheruvu Lake Promenade (Near Inorbit Mall), Madhapur",
+        time: "Saturday, 5:30 PM",
+        currentParticipants: 2,
+        maxParticipants: 5,
+        vibe: "Chai Lovers",
+        joinedByMe: false,
+        host: {
+          name: "Praneeth V.",
+          avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80",
+          tagline: "Recently relocated to Gachibowli. Searching for fellow conversationalists.",
+          cityBadge: "Hyderabad"
+        },
+        description: "Moved from Delhi to Hyderabad last month for work. Want to enjoy the lake view, grab Irani chai & Osmania biscuits, and talk about sci-fi, music, and surviving Bangalore/Hyderabad traffic.",
+        tags: ["Durgam Cheruvu", "Madhapur", "Gachibowli", "Irani Chai"]
+      },
+      {
+        id: 104,
+        title: "HSR Layout Sector 2 Turf Badminton Doubles (Intermediate)",
+        category: "sports",
+        city: "bengaluru",
+        mode: "Offline",
+        location: "Active Arena / Playo Court, HSR Layout, Bengaluru",
+        time: "Saturday Morning, 7:00 AM",
+        currentParticipants: 3,
+        maxParticipants: 4,
+        vibe: "Beginners Welcome",
+        joinedByMe: false,
+        host: {
+          name: "Kavya Menon",
+          avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&q=80",
+          tagline: "Badminton enthusiast in HSR. Have 2 extra Yonex rackets.",
+          cityBadge: "Bengaluru"
+        },
+        description: "We booked Court 2 for 2 hours. Need 1 player to complete our 4-player doubles setup. We split the court fee equally (~₹180 each). Non-marking shoes required, extra rackets available!",
+        tags: ["Badminton", "HSR Layout", "Active Turf", "Playo"]
+      },
+      {
+        id: 105,
+        title: "Madhapur Box Cricket Turf - Need 2 Players for Friendly 7v7",
+        category: "sports",
+        city: "hyderabad",
+        mode: "Offline",
+        location: "Strike Box Cricket Turf, Near D-Mart, Madhapur, Hyderabad",
+        time: "Sunday, 4:00 PM - 6:00 PM",
+        currentParticipants: 12,
+        maxParticipants: 14,
+        vibe: "Beginners Welcome",
+        joinedByMe: false,
+        host: {
+          name: "Syed Imran",
+          avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&q=80",
+          tagline: "Weekend cricket fanatic. All skill levels play!",
+          cityBadge: "Hyderabad"
+        },
+        description: "Casual tennis-ball box cricket! 2 regulars had family plans, so we need 2 more players. No aggressive sledging—just good bowling, big sixes, and cold Nimbu Soda after the match.",
+        tags: ["Box Cricket", "Madhapur", "Hyderabad", "Weekend Sports"]
+      },
+      {
+        id: 106,
+        title: "Apex Legends / Helldivers 2 Chill Trios Lobby (All India)",
+        category: "gaming",
+        city: "online",
+        mode: "Online",
+        location: "Discord Server (Voice Channel #squad-b)",
+        time: "Every Night, 10:00 PM",
+        currentParticipants: 2,
+        maxParticipants: 3,
+        vibe: "No Toxicity / Casual",
+        joinedByMe: false,
+        host: {
+          name: "Nikhil Joshi",
+          avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=160&q=80",
+          tagline: "Steam / PC gamer. Looking for chill voice chat companion.",
+          cityBadge: "Online"
+        },
+        description: "Looking for an 18+ buddy to run Apex Legends or Helldivers 2 missions. Doesn't matter if you drop with 0 kills or die in ring; we play to destress and share laughs. Join discord directly.",
+        tags: ["Apex Legends", "Helldivers 2", "Co-op", "Discord Voice"]
+      }
+    ];
+
+    // State Variables
+    let currentCategory = 'all';
+    let currentCity = 'all';
+    let currentMode = 'all';
+    let searchQuery = '';
+    let activeChatActivity = null;
+    let chatHistories = {};
+
+    function renderActivities() {
+      const grid = document.getElementById('cardsGrid');
+      const empty = document.getElementById('emptyState');
+      const counter = document.getElementById('activeCountDisplay');
+
+      const filtered = activities.filter(item => {
+        // Category
+        const matchCategory = (currentCategory === 'all' || item.category === currentCategory);
+        // City
+        const matchCity = (currentCity === 'all' || item.city === currentCity || (currentCity === 'online' && item.mode === 'Online'));
+        // Mode
+        const matchMode = (currentMode === 'all' || item.mode.toLowerCase() === currentMode.toLowerCase());
+        // Search Query
+        const q = searchQuery.toLowerCase().trim();
+        const matchSearch = !q || (
+          item.title.toLowerCase().includes(q) ||
+          item.location.toLowerCase().includes(q) ||
+          item.description.toLowerCase().includes(q) ||
+          item.host.name.toLowerCase().includes(q) ||
+          item.tags.some(t => t.toLowerCase().includes(q))
+        );
+
+        return matchCategory && matchCity && matchMode && matchSearch;
+      });
+
+      counter.innerText = `Showing ${filtered.length} hangout${filtered.length === 1 ? '' : 's'}`;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+
+      grid.innerHTML = filtered.map(item => {
+        const isFull = item.currentParticipants >= item.maxParticipants;
+        const joined = item.joinedByMe;
+        
+        // City label formatting
+        let cityDisplay = item.city.toUpperCase();
+        if (item.city === 'bengaluru') cityDisplay = 'Bengaluru';
+        if (item.city === 'hyderabad') cityDisplay = 'Hyderabad';
+        if (item.city === 'online') cityDisplay = 'Online';
+
+        return `
+          <div class="fade-in bg-white dark:bg-surface-cardDark rounded-3xl border border-orange-200/50 dark:border-surface-borderDark hover:border-orange-400 dark:hover:border-brand-500/50 p-5 sm:p-6 transition-all duration-200 hover:shadow-xl hover:shadow-orange-500/5 flex flex-col justify-between group">
+            
+            <div>
+              <!-- Top Metadata Row -->
+              <div class="flex items-center justify-between gap-2 mb-3.5 flex-wrap">
+                <div class="flex items-center gap-1.5">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold ${
+                    item.city === 'bengaluru' 
+                      ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' 
+                      : item.city === 'hyderabad'
+                      ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300'
+                      : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                  }">
+                    <i data-lucide="map-pin" class="w-3 h-3"></i>
+                    ${cityDisplay}
+                  </span>
+
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-semibold ${
+                    item.mode === 'Online'
+                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-200 dark:border-blue-900'
+                      : 'bg-slate-100 text-slate-700 dark:bg-surface-darkBg dark:text-slate-300 border border-slate-200 dark:border-surface-borderDark'
+                  }">
+                    <i data-lucide="${item.mode === 'Online' ? 'globe' : 'compass'}" class="w-3 h-3"></i>
+                    ${item.mode}
+                  </span>
+                </div>
+
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-orange-50 dark:bg-surface-darkBg text-orange-600 dark:text-orange-400 border border-orange-200/50 dark:border-surface-borderDark">
+                  ${item.vibe}
+                </span>
+              </div>
+
+              <!-- Title -->
+              <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white leading-snug group-hover:text-brand-500 transition-colors mb-2">
+                ${item.title}
+              </h3>
+
+              <!-- Description -->
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4 line-clamp-3">
+                ${item.description}
+              </p>
+
+              <!-- Tags -->
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                ${item.tags.map(tag => `
+                  <button onclick="quickFilterTag('${tag}')" class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 dark:bg-surface-darkBg text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-surface-borderDark hover:text-brand-500 hover:border-brand-500 transition-colors">
+                    #${tag}
+                  </button>
+                `).join('')}
+              </div>
+
+              <!-- Time & Place card info -->
+              <div class="space-y-1.5 text-xs text-slate-500 dark:text-slate-400 mb-5 bg-orange-50/40 dark:bg-surface-darkBg/60 p-3 rounded-2xl border border-orange-100/50 dark:border-surface-borderDark">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="clock" class="w-3.5 h-3.5 text-brand-500 shrink-0"></i>
+                  <span class="font-semibold text-slate-700 dark:text-slate-200">${item.time}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="navigation" class="w-3.5 h-3.5 text-brand-500 shrink-0"></i>
+                  <span class="truncate">${item.location}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer: Host and Actions -->
+            <div class="pt-4 border-t border-slate-100 dark:border-surface-borderDark">
+              <div class="flex items-center justify-between mb-3.5">
+                <div class="flex items-center gap-2.5">
+                  <img src="${item.host.avatar}" alt="${item.host.name}" class="w-8 h-8 rounded-full object-cover border border-orange-200 dark:border-surface-borderDark" onerror="this.src='https://placehold.co/100x100/f97316/ffffff?text=User'">
+                  <div class="flex flex-col">
+                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200">${item.host.name}</span>
+                    <span class="text-[10px] text-slate-400 truncate max-w-[130px] sm:max-w-[160px]">${item.host.tagline}</span>
+                  </div>
+                </div>
+
+                <!-- Live Capacity Counter -->
+                <div class="text-right">
+                  <span class="text-xs font-bold ${isFull && !joined ? 'text-rose-500' : 'text-slate-700 dark:text-slate-300'}">
+                    ${item.currentParticipants}/${item.maxParticipants} Spots
+                  </span>
+                  <span class="text-[10px] block ${joined ? 'text-emerald-500 font-bold' : 'text-slate-400'}">
+                    ${joined ? '✓ You joined' : (isFull ? 'Lobby full' : 'Available')}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Button actions -->
+              <div class="flex items-center gap-2">
+                <button 
+                  onclick="openChatDrawer(${item.id})" 
+                  class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold bg-brand-500 hover:bg-brand-600 text-white shadow-sm hover:shadow-md transition-all active:scale-95"
+                >
+                  <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                  Say Hi / Chat
+                </button>
+
+                <button 
+                  onclick="toggleJoinActivity(${item.id})" 
+                  class="px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                    joined 
+                      ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                      : (isFull 
+                          ? 'bg-slate-200 dark:bg-surface-hoverDark text-slate-400 cursor-not-allowed'
+                          : 'bg-orange-100 hover:bg-orange-200 dark:bg-surface-hoverDark dark:hover:bg-slate-700 text-orange-700 dark:text-orange-300')
+                  }"
+                  ${isFull && !joined ? 'disabled' : ''}
+                  title="${joined ? 'Leave hangout' : 'Join hangout'}"
+                >
+                  <i data-lucide="${joined ? 'check' : (isFull ? 'lock' : 'user-plus')}" class="w-3.5 h-3.5"></i>
+                  <span>${joined ? 'Joined' : 'Join'}</span>
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        `;
+      }).join('');
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function toggleJoinActivity(id) {
+      const item = activities.find(a => a.id === id);
+      if (!item) return;
+
+      if (item.joinedByMe) {
+        // Leave
+        item.joinedByMe = false;
+        item.currentParticipants = Math.max(1, item.currentParticipants - 1);
+        showToast(`You left "${item.title.substring(0, 22)}...". Spot opened up!`, 'info');
+      } else {
+        // Join
+        if (item.currentParticipants >= item.maxParticipants) {
+          showToast('This group is currently full. Use "Say Hi" to message the host directly!', 'info');
+          return;
+        }
+        item.joinedByMe = true;
+        item.currentParticipants += 1;
+        showToast(`🎉 You joined "${item.title.substring(0, 22)}..."! Say hi to ${item.host.name}.`, 'success');
+        openChatDrawer(id);
+      }
+
+      renderActivities();
+    }
+
+    function filterCategory(cat) {
+      currentCategory = cat;
+      const pills = document.querySelectorAll('.cat-pill');
+      pills.forEach(p => {
+        p.classList.remove('bg-brand-500', 'text-white', 'shadow-sm');
+        p.classList.add('text-slate-600', 'dark:text-slate-300');
+      });
+
+      const active = document.getElementById(`cat-${cat}`);
+      if (active) {
+        active.classList.add('bg-brand-500', 'text-white', 'shadow-sm');
+        active.classList.remove('text-slate-600', 'dark:text-slate-300');
+      }
+
+      renderActivities();
+    }
+
+    function setCity(city) {
+      currentCity = city;
+      
+      // Sync city selector dropdown in top header
+      const sel = document.getElementById('citySelector');
+      if (sel) sel.value = city;
+
+      // Update pills
+      const buttons = document.querySelectorAll('.city-btn');
+      buttons.forEach(b => {
+        b.classList.remove('bg-orange-500', 'text-white', 'shadow-xs');
+        b.classList.add('bg-white', 'dark:bg-surface-cardDark', 'text-slate-600', 'dark:text-slate-300');
+      });
+
+      const activeBtn = document.getElementById(`city-pill-${city}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-orange-500', 'text-white', 'shadow-xs');
+        activeBtn.classList.remove('bg-white', 'dark:bg-surface-cardDark', 'text-slate-600', 'dark:text-slate-300');
+      }
+
+      renderActivities();
+    }
+
+    function handleCityChange(city) {
+      setCity(city);
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      const tags = document.querySelectorAll('.mode-tag');
+      tags.forEach(t => {
+        t.classList.remove('bg-orange-500', 'text-white', 'font-bold');
+        t.classList.add('text-slate-600', 'dark:text-slate-300', 'font-medium');
+      });
+
+      const activeTag = document.getElementById(`mode-${mode}`);
+      if (activeTag) {
+        activeTag.classList.add('bg-orange-500', 'text-white', 'font-bold');
+        activeTag.classList.remove('text-slate-600', 'dark:text-slate-300', 'font-medium');
+      }
+
+      renderActivities();
+    }
+
+    function handleSearch(val) {
+      searchQuery = val;
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) {
+        if (val.trim()) {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+      }
+      // Sync mobile and desktop inputs
+      const dInput = document.getElementById('desktopSearchInput');
+      const mInput = document.getElementById('mobileSearchInput');
+      if (dInput && dInput.value !== val) dInput.value = val;
+      if (mInput && mInput.value !== val) mInput.value = val;
+
+      renderActivities();
+    }
+
+    function clearSearch() {
+      handleSearch('');
+    }
+
+    function quickFilterTag(tag) {
+      searchQuery = tag;
+      const dInput = document.getElementById('desktopSearchInput');
+      const mInput = document.getElementById('mobileSearchInput');
+      if (dInput) dInput.value = tag;
+      if (mInput) mInput.value = tag;
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) clearBtn.classList.remove('hidden');
+
+      renderActivities();
+    }
+
+    function resetAllFilters() {
+      currentCategory = 'all';
+      currentCity = 'all';
+      currentMode = 'all';
+      searchQuery = '';
+
+      filterCategory('all');
+      setCity('all');
+      setMode('all');
+      clearSearch();
+    }
+
+    function openChatDrawer(activityId) {
+      const item = activities.find(a => a.id === activityId);
+      if (!item) return;
+
+      activeChatActivity = item;
+
+      // Populate Drawer Header
+      document.getElementById('drawerAvatar').src = item.host.avatar;
+      document.getElementById('drawerHostName').innerText = item.host.name;
+      document.getElementById('drawerCityBadge').innerText = item.city.toUpperCase();
+      document.getElementById('drawerActivityTitle').innerText = item.title;
+      document.getElementById('drawerTypingName').innerText = `${item.host.name} is typing...`;
+
+      // Set initial greeting if history is empty
+      if (!chatHistories[activityId]) {
+        chatHistories[activityId] = [
+          {
+            sender: 'host',
+            text: `Hey! Thanks for checking out "${item.title}". We are super chill—no pressure at all. Have you joined an activity like this before?`,
+            time: 'Just now'
+          }
+        ];
+      }
+
+      renderDrawerMessages();
+
+      const drawer = document.getElementById('chatDrawer');
+      const backdrop = document.getElementById('chatBackdrop');
+      const panel = document.getElementById('chatPanel');
+
+      drawer.classList.remove('pointer-events-none');
+      backdrop.classList.remove('opacity-0', 'pointer-events-none');
+      backdrop.classList.add('opacity-100');
+      panel.classList.remove('translate-x-full');
+      panel.classList.add('translate-x-0');
+
+      setTimeout(() => {
+        document.getElementById('drawerChatInput').focus();
+      }, 250);
+    }
+
+    function closeChatDrawer() {
+      const drawer = document.getElementById('chatDrawer');
+      const backdrop = document.getElementById('chatBackdrop');
+      const panel = document.getElementById('chatPanel');
+
+      backdrop.classList.remove('opacity-100');
+      backdrop.classList.add('opacity-0', 'pointer-events-none');
+      panel.classList.remove('translate-x-0');
+      panel.classList.add('translate-x-full');
+
+      setTimeout(() => {
+        drawer.classList.add('pointer-events-none');
+      }, 300);
+    }
+
+    function renderDrawerMessages() {
+      if (!activeChatActivity) return;
+      const history = chatHistories[activeChatActivity.id] || [];
+      const container = document.getElementById('drawerMessages');
+
+      container.innerHTML = history.map(msg => {
+        const isUser = msg.sender === 'user';
+        return `
+          <div class="flex flex-col ${isUser ? 'items-end' : 'items-start'}">
+            <div class="max-w-[85%] rounded-2xl px-4 py-2.5 text-xs sm:text-sm ${
+              isUser
+                ? 'bg-gradient-to-r from-brand-500 to-rose-500 text-white rounded-br-none shadow-sm'
+                : 'bg-white dark:bg-surface-cardDark text-slate-800 dark:text-slate-100 rounded-bl-none border border-orange-100 dark:border-surface-borderDark shadow-sm'
+            }">
+              ${msg.text}
+            </div>
+            <span class="text-[10px] text-slate-400 mt-1 px-1">${msg.time}</span>
+          </div>
+        `;
+      }).join('');
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function handleSendDrawerChat(event) {
+      if (event) event.preventDefault();
+      const input = document.getElementById('drawerChatInput');
+      const text = input.value.trim();
+      if (!text || !activeChatActivity) return;
+
+      appendChatMessage('user', text);
+      input.value = '';
+
+      simulateHostReply(activeChatActivity);
+    }
+
+    function sendIcebreaker(text) {
+      const clean = text.replace(/^[👋🏸☕\s]+/, '');
+      document.getElementById('drawerChatInput').value = clean;
+      handleSendDrawerChat();
+    }
+
+    function appendChatMessage(sender, text) {
+      if (!activeChatActivity) return;
+      const id = activeChatActivity.id;
+      if (!chatHistories[id]) chatHistories[id] = [];
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      chatHistories[id].push({
+        sender: sender,
+        text: text,
+        time: timeStr
+      });
+
+      renderDrawerMessages();
+    }
+
+    function simulateHostReply(activity) {
+      const typing = document.getElementById('drawerTyping');
+      typing.classList.remove('hidden');
+
+      const possibleReplies = [
+        `Awesome! You're very welcome to join us. I'll make sure you feel right at home!`,
+        `Don't worry about being an expert at all—most of us are just playing casually after work.`,
+        `Super glad you reached out! It can get really lonely in Bangalore/Hyderabad when you're just sitting in your room. See you then!`,
+        `Sounds like a plan! I will share the exact pin / Discord link so you don't have to wander around.`
+      ];
+
+      const reply = possibleReplies[Math.floor(Math.random() * possibleReplies.length)];
+
+      setTimeout(() => {
+        typing.classList.add('hidden');
+        appendChatMessage('host', reply);
+      }, 1100);
+    }
+
+    function openCreateModal() {
+      const modal = document.getElementById('createModal');
+      const content = document.getElementById('createModalContent');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+      }, 10);
+    }
+
+    function closeCreateModal() {
+      const modal = document.getElementById('createModal');
+      const content = document.getElementById('createModalContent');
+      modal.classList.add('opacity-0');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 200);
+    }
+
+    function handleModalModeChange(mode) {
+      const label = document.getElementById('fLocationLabel');
+      const input = document.getElementById('fLocation');
+      if (mode === 'Offline') {
+        label.innerText = 'Turf / Venue / Landmark *';
+        input.placeholder = 'e.g. HSR Sector 2 Turf, Durgam Cheruvu Cafe, or Cubbon Park';
+      } else {
+        label.innerText = 'Game Server / Voice Server *';
+        input.placeholder = 'e.g. Discord Voice / Mumbai Server / Steam Lobby Code';
+      }
+    }
+
+    function handleCreateActivity(event) {
+      event.preventDefault();
+
+      const title = document.getElementById('fTitle').value.trim();
+      const city = document.getElementById('fCity').value;
+      const mode = document.getElementById('fMode').value;
+      const category = document.getElementById('fCategory').value;
+      const location = document.getElementById('fLocation').value.trim();
+      const time = document.getElementById('fTime').value.trim();
+      const maxSpots = parseInt(document.getElementById('fMaxCount').value, 10) || 4;
+      const vibe = document.getElementById('fVibe').value;
+      const hostName = document.getElementById('fHostName').value.trim() || 'You';
+      const desc = document.getElementById('fDesc').value.trim();
+
+      const newId = Date.now();
+      const newActivity = {
+        id: newId,
+        title: title,
+        category: category,
+        city: city,
+        mode: mode,
+        location: location,
+        time: time,
+        currentParticipants: 1,
+        maxParticipants: maxSpots,
+        vibe: vibe,
+        joinedByMe: true, // User created it
+        host: {
+          name: hostName,
+          avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=160&q=80",
+          tagline: "Friendly community host on CommonGround.",
+          cityBadge: city.toUpperCase()
+        },
+        description: desc,
+        tags: [city.toUpperCase(), mode, vibe.split(' ')[0]]
+      };
+
+      // Add to front of activity feed
+      activities.unshift(newActivity);
+      closeCreateModal();
+      document.getElementById('activityForm').reset();
+
+      // Reset filters so the user immediately views their own post
+      currentCategory = 'all';
+      currentMode = 'all';
+      filterCategory('all');
+      setMode('all');
+      renderActivities();
+
+      showToast(`🎉 "${title.substring(0, 24)}..." has been published live!`, 'success');
+    }
+
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMessage.innerText = message;
+
+      if (type === 'success') {
+        toastIcon.setAttribute('data-lucide', 'check-circle-2');
+        toastIcon.className = 'w-4.5 h-4.5 text-emerald-400';
+      } else {
+        toastIcon.setAttribute('data-lucide', 'info');
+        toastIcon.className = 'w-4.5 h-4.5 text-brand-500';
+      }
+
+      if (window.lucide) lucide.createIcons();
+
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3500);
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const sun = document.getElementById('themeSunIcon');
+      const moon = document.getElementById('themeMoonIcon');
+
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        sun.classList.remove('hidden');
+        moon.classList.add('hidden');
+        localStorage.setItem('cg-theme', 'light');
+      } else {
+        html.classList.add('dark');
+        sun.classList.add('hidden');
+        moon.classList.remove('hidden');
+        localStorage.setItem('cg-theme', 'dark');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Restore theme preference
+      const savedTheme = localStorage.getItem('cg-theme');
+      const sun = document.getElementById('themeSunIcon');
+      const moon = document.getElementById('themeMoonIcon');
+      if (savedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+        sun.classList.remove('hidden');
+        moon.classList.add('hidden');
+      } else {
+        document.documentElement.classList.add('dark');
+        sun.classList.add('hidden');
+        moon.classList.remove('hidden');
+      }
+
+      // Initial Render
+      renderActivities();
+
+      // Escape key to dismiss modals/drawers
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeCreateModal();
+          closeChatDrawer();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
